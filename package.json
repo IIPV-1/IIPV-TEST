@@ -1,0 +1,43 @@
+{
+  "name": "iipv-whatsapp-bot",
+  "version": "1.0.0",
+  "description": "IIPV - Constructor de Bot para WhatsApp con sistema de pairing web",
+  "main": "index.js",
+  "scripts": {
+    "start": "pm2 start index.js --deep-monitoring --attach --name IIPV",
+    "stop": "pm2 stop IIPV",
+    "restart": "pm2 restart IIPV",
+    "dev": "node index.js",
+    "clean": "rimraf ./session"
+  },
+  "keywords": [
+    "whatsapp",
+    "bot",
+    "iipv",
+    "baileys",
+    "pairing"
+  ],
+  "author": "IIPV Team",
+  "license": "MIT",
+  "dependencies": {
+    "@whiskeysockets/baileys": "^6.7.9",
+    "qrcode": "^1.5.4",
+    "awesome-phonenumber": "^7.2.0",
+    "pino": "^9.6.0",
+    "phone": "^3.1.56",
+    "body-parser": "^1.20.3",
+    "express": "^4.21.2",
+    "path": "^0.12.7",
+    "megajs": "^1.3.5",
+    "pm2": "^5.4.3",
+    "rimraf": "^6.0.1"
+  },
+  "devDependencies": {
+    "@eslint/config-array": "^0.19.1",
+    "@eslint/object-schema": "^2.1.5",
+    "eslint": "^9.17.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}

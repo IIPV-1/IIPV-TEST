@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IIPV - Código de Pairing</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #141414;
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: cover;
+      font-family: 'Arial', sans-serif;
+      color: #fff;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .box {
+      width: 320px;
+      height: 380px;
+      padding: 25px;
+      position: relative;
+      text-align: center;
+      background: linear-gradient(145deg, #1a1a1a, #2d2d2d);
+      border-radius: 15px;
+      transform: perspective(1000px) rotateY(0deg);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+      position: relative;
+      border: 1px solid #444;
+    }
+
+    #text {
+      color: #ffffff;
+    }
+
+    .input-container input {
+      color: #ffffff;
+    }
+
+    .centered-text {
+      color: #ffffff;
+      margin-bottom: 20px;
+    }
+
+    .logo {
+      font-size: 28px;
+      font-weight: bold;
+      margin-bottom: 15px;
+      color: #25d366;
+      text-shadow: 0 0 10px rgba(37, 211, 102, 0.5);
+    }
+
+    .input-container {
+      display: flex;
+      background: #333;
+      border-radius: 1rem;
+      padding: 0.3rem;
+      gap: 0.3rem;
+      max-width: 300px;
+      width: 100%;
+      margin-bottom: 15px;
+    }
+
+    .input-container input {
+      border-radius: 0.8rem 0 0 0.8rem;
+      background: #222;
+      width: 89%;
+      flex-basis: 75%;
+      padding: 1rem;
+      border: none;
+      border-left: 2px solid #25d366;
+      color: #ecf0f1;
+      transition: all 0.2s ease-in-out;
+    }
+
+    .input-container input:focus {
+      border-left: 2px solid #25d366;
+      outline: none;
+      box-shadow: inset 5px 5px 10px #1a1a1a, inset -5px -5px 10px #2a2a2a;
+    }
+
+    .input-container button {
+      flex-basis: 25%;
+      padding: 1rem;
+      background: #25d366;
+      font-weight: 900;
+      letter-spacing: 0.1rem;
+      text-transform: uppercase;
+      color: white;
+      border: none;
+      width: 100%;
+      border-radius: 0 1rem 1rem 0;
+      transition: all 0.2s ease-in-out;
+      cursor: pointer;
+    }
+
+    .input-container button:hover {
+      background: #1ea64b;
+      transform: translateY(-2px);
+    }
+
+    #waiting-message {
+      color: #ccc;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 500px) {
+      .input-container {
+        flex-direction: column;
+      }
+
+      .input-container input {
+        border-radius: 0.8rem;
+        margin-bottom: 5px;
+      }
+
+      .input-container button {
+        padding: 1rem;
+        border-radius: 0.8rem;
+      }
+      
+      .box {
+        width: 90%;
+        height: auto;
+        padding: 20px 15px;
+      }
+    }
+
+    /* Add styles for the loading spinner */
+    #loading-spinner {
+      display: none;
+      color: white;
+      margin: 15px 0;
+    }
+
+    .fa-spinner {
+      animation: spin 2s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .instructions {
+      font-size: 12px;
+      color: #999;
+      margin-top: 20px;
+      line-height: 1.4;
+    }
+    
+    .code-display {
+      background: #222;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 15px;
+      border: 1px solid #444;
+    }
+    
+    #copy {
+      cursor: pointer;
+      transition: all 0.3s;
+      padding: 8px 12px;
+      border-radius: 5px;
+      display: inline-block;
+    }
+    
+    #copy:hover {
+      background: #333;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="main">
+      <div class="box" id="box">
+        <div class="logo">IIPV BOT</div>
+        <div id="text">
+          <p>
+            <h3 class="centered-text">Conectar IIPV con WhatsApp</h3>
+            <div class="input-container">
+              <input placeholder="+1234567890" type="tel" id="number" name="number">
+              <button id="submit">Enviar</button>
+            </div>
+            <!-- Add the loading spinner -->
+            <div id="loading-spinner">
+              <i class="fas fa-spinner fa-spin"></i> Procesando...
+            </div>
+            <main id="pair"></main>
+            <div class="instructions">
+              🔢 Ingresa tu número con código de país. Ejemplo: +1234567890
+            </div>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.0.0-alpha.1/axios.min.js"></script>
+  <script>
+    let a = document.getElementById("pair");
+    let b = document.getElementById("submit");
+    let c = document.getElementById("number");
+    let box = document.getElementById("box");
+
+    async function Copy() {
+      let text = document.getElementById("copy").innerText;
+      let obj = document.getElementById("copy");
+      await navigator.clipboard.writeText(obj.innerText.replace('CÓDIGO: ', ''));
+      obj.innerText = "✔️ COPIADO";
+      obj.style = "color:#25d366;font-weight:bold";
+      setTimeout(() => {
+        obj.innerText = text;
+        obj.style = "color:white;font-weight:bold";
+      }, 1500);
+    }
+
+    b.addEventListener("click", async (e) => {
+      e.preventDefault();
+      if (!c.value) {
+        a.innerHTML = '<div style="color:#ff4444;font-weight:bold">❗ Ingresa tu número de WhatsApp con código de país.</div>';
+      } else if (c.value.replace(/[^0-9]/g, "").length < 10) {
+        a.innerHTML = '<div style="color:#ff4444;font-weight:bold">❗ Formato de número inválido. Intenta nuevamente.</div>';
+      } else {
+        const bc = c.value.replace(/[^0-9]/g, "");
+        let bb = "";
+        let bbc = "";
+        const cc = bc.split('');
+        cc.map(a => {
+          bbc += a;
+          if (bbc.length == 3) {
+            bb += " " + a;
+          } else if (bbc.length == 8) {
+            bb += " " + a;
+          } else {
+            bb += a;
+          }
+        });
+        c.type = "text";
+        c.value = "+" + bb;
+        c.style = "color:white;font-size:16px";
+        
+        // Show the loading spinner
+        document.getElementById("loading-spinner").style.display = "block";
+        a.innerHTML = ''; // Clear the previous content
+        
+        try {
+          let { data } = await axios(`/code?number=${bc}`);
+          let code = data.code || "❗ Servicio no disponible";
+          
+          a.innerHTML = `
+            <div class="code-display">
+              <font id="copy" onclick="Copy()" style="color:#25d366;font-weight:bold">
+                CÓDIGO: <span style="color:white;font-weight:bold">${code}</span>
+              </font>
+              <div style="font-size:12px; color:#999; margin-top:8px;">(Haz clic para copiar)</div>
+            </div>
+          `;
+        } catch (error) {
+          a.innerHTML = '<div style="color:#ff4444;font-weight:bold">❗ Error al conectar con el servidor.</div>';
+        }
+        
+        // Hide the loading spinner when the process is complete
+        document.getElementById("loading-spinner").style.display = "none";
+      }
+    });
+  </script>
+</body>
+</html>
